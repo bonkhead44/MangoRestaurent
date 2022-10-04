@@ -31,7 +31,7 @@ namespace Mango.Web.Services.IServices
                 {
                     httpRequestMessage.Content = new StringContent(JsonConvert.SerializeObject(apiRequest.Data), Encoding.UTF8, "application/json");
                 }
-                HttpResponseMessage apiResponse = null;
+                HttpResponseMessage? apiResponse = null;
                 switch (apiRequest.ApiType)
                 {
                     case SD.ApiType.POST:
