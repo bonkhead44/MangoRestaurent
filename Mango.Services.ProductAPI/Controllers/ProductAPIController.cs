@@ -40,11 +40,11 @@ namespace Mango.Services.ProductAPI.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<object> Get(int productId)
+        public async Task<object> Get(int id)
         {
             try
             {
-                ProductDto productDto = await _iProductRepository.GetProductById(productId);
+                ProductDto productDto = await _iProductRepository.GetProductById(id);
                 _response.Result = productDto;
             }
             catch (Exception ex)
@@ -59,11 +59,11 @@ namespace Mango.Services.ProductAPI.Controllers
 
         [HttpDelete]
         [Route("{id}")]
-        public async Task<object> Delete(int productId)
+        public async Task<object> Delete(int id)
         {
             try
             {
-                bool isSuccess = await _iProductRepository.DeleteProduct(productId);
+                bool isSuccess = await _iProductRepository.DeleteProduct(id);
                 _response.Result = isSuccess;
             }
             catch (Exception ex)
