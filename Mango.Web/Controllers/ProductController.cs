@@ -59,11 +59,11 @@ namespace Mango.Web.Controllers
         {
             //if (ModelState.IsValid)
             //{
-                var response = await _iProductService.DeleteProductAsync<ResponseDto>(productDto.ProductId);
-                if (response.IsSuccess)
-                {
-                    return RedirectToAction(nameof(ProductIndex));
-                }
+            var response = await _iProductService.DeleteProductAsync<ResponseDto>(productDto.ProductId);
+            if (response.IsSuccess)
+            {
+                return RedirectToAction(nameof(ProductIndex));
+            }
             //}
             return View(productDto);
         }
