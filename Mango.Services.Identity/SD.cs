@@ -1,4 +1,5 @@
-﻿using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
 
 namespace Mango.Services.Identity
 {
@@ -13,7 +14,6 @@ namespace Mango.Services.Identity
                 new IdentityResources.Email(),
                 new IdentityResources.Profile()
             };
-
         public static IEnumerable<ApiScope> ApiScopes =>
             new List<ApiScope> {
                 new ApiScope("mango", "Mango Server"),
@@ -21,7 +21,6 @@ namespace Mango.Services.Identity
                 new ApiScope(name: "write",  displayName: "Write your data."),
                 new ApiScope(name: "delete", displayName: "Delete your data.")
             };
-
         public static IEnumerable<Client> Clients =>
             new List<Client>
             {
@@ -31,6 +30,21 @@ namespace Mango.Services.Identity
                     ClientSecrets= { new Secret("secret".Sha256())},
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
                     AllowedScopes={ "read", "write","profile"}
+                },
+                new Client
+                {
+                    ClientId="mango",
+                    ClientSecrets= { new Secret("secret".Sha256())},
+                    AllowedGrantTypes = GrantTypes.Code,
+                    RedirectUris={ "https://localhost:44332/signin-oidc" },
+                    PostLogoutRedirectUris={"https://localhost:44332/signout-callback-oidc" },
+                    AllowedScopes=new List<string>
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Email,
+                        "mango"
+                    }
                 },
             };
     }
