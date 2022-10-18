@@ -1,6 +1,7 @@
 using Mango.Web;
 using Mango.Web.Services;
 using Mango.Web.Services.IServices;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,33 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient<IProductService, ProductService>();
 SD.ProductAPIBase = builder.Configuration["ServiceUrls:ProductAPI"];
 builder.Services.AddScoped<IProductService, ProductService>();
+
+// #1
+// config web project for identity server authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = "oidc";
+})
+    .AddCookie(options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+    })
+    .AddOpenIdConnect(options =>
+    {
+        options.Authority = builder.Configuration["ServiceUrls:IdentityAPI"];
+        options.GetClaimsFromUserInfoEndpoint = true;
+        options.ClientId = "mango";
+        options.ClientSecret = "secret";
+        options.ResponseType = "code";
+        options.TokenValidationParameters.NameClaimType = "name";
+        options.TokenValidationParameters.RoleClaimType = "role";
+        options.Scope.Add("mango");
+        options.SaveTokens = true;
+    });
+
 builder.Services.AddControllersWithViews();
+
 
 var app = builder.Build();
 
@@ -22,9 +49,13 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// #2. add authentication always before authorization
+app.UseAuthentication();
 
 app.UseAuthorization();
 

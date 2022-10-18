@@ -16,7 +16,7 @@ namespace Mango.Web.Controllers
         {
             var response = await _iProductService.GetAllProductsAsync<ResponseDto>();
             List<ProductDto> productList = new();
-            if (response.Result != null && response.IsSuccess)
+            if (response != null && response.IsSuccess)
             {
                 productList = JsonConvert.DeserializeObject<List<ProductDto>>(Convert.ToString(response.Result));
             }
