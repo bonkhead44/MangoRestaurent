@@ -10,5 +10,7 @@ namespace Mango.Services.Identity.DbContext
         {
 
         }
+
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
     }
 }
