@@ -1,4 +1,5 @@
 ﻿using Mango.Web.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -36,9 +37,13 @@ namespace Mango.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            return SignOut("Cookies", "oidc");
+            //SignOut("Cookies", "oidc");
+            //return RedirectToAction(nameof(Index));
+            await HttpContext.SignOutAsync();
+            SignOut("Cookies", "oidc");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

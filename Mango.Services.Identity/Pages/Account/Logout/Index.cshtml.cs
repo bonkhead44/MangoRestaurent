@@ -74,9 +74,9 @@ public class Index : PageModel
             LogoutId ??= await _interaction.CreateLogoutContextAsync();
 
             // delete local authentication cookie
-            //await HttpContext.SignOutAsync();
-            //#1
 
+            //#1
+            await HttpContext.SignOutAsync();
             await _signInManager.SignOutAsync();
 
             // raise the logout event
