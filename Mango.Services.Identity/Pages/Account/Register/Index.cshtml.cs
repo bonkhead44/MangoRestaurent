@@ -1,6 +1,9 @@
+using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
+using IdentityModel;
 using Mango.Services.Identity.Models;
+using MangoRestaurent.Pages;
 using MangoRestaurent.Pages.Login;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.VisualBasic;
+using System.Security.Claims;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Mango.Services.Identity.Pages.Account.Register
 {
@@ -55,6 +60,83 @@ namespace Mango.Services.Identity.Pages.Account.Register
             return Page();
         }
 
+        public async Task<IActionResult> OnPost(string returnUrl)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser()
+                {
+                    UserName = Input.Username,
+                    Email = Input.Email,
+                    EmailConfirmed = true,
+                    FirstName = Input.FirstName,
+                    LastName = Input.LastName,
+                };
+                var result = await _userManager.CreateAsync(user);
+                if (result.Succeeded)
+                {
+                    if (!_roleManager.RoleExistsAsync(Input.RoleName).GetAwaiter().GetResult())
+                    {
+                        var userRole = new IdentityRole
+                        {
+                            Name = Input.RoleName,
+                            NormalizedName = Input.RoleName,
+                        };
+                        await _roleManager.CreateAsync(userRole);
+                    }
+                    await _userManager.AddToRoleAsync(user, Input.RoleName);
+
+                    await _userManager.AddClaimsAsync(user, new Claim[] {
+                        new Claim(JwtClaimTypes.Name, Input.Username),
+                        new Claim(JwtClaimTypes.Email, Input.Email),
+                        new Claim(JwtClaimTypes.FamilyName, Input.FirstName),
+                        new Claim(JwtClaimTypes.GivenName, Input.LastName),
+                            new Claim(JwtClaimTypes.WebSite, "http://"+Input.Username+".com"),
+                            new Claim(JwtClaimTypes.Role,"User")
+                    });
+
+                    // check if we are in the context of an authorization request
+                    var context = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
+
+                    var loginresult = await _signInManager.PasswordSignInAsync(Input.Username, Input.Password, false, lockoutOnFailure: true);
+
+                    if (loginresult.Succeeded)
+                    {
+                        var checkuser = await _userManager.FindByNameAsync(Input.Username);
+                        await _events.RaiseAsync(new UserLoginSuccessEvent(checkuser.UserName, checkuser.Id, checkuser.UserName, clientId: context?.Client.ClientId));
+
+                        if (context != null)
+                        {
+                            // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
+                            if (context.IsNativeClient())
+                            {
+                                // The client is native, so this change in how to
+                                // return the response is for better UX for the end user.
+                                return this.LoadingPage(Input.ReturnUrl);
+                            }
+
+                            return Redirect(Input.ReturnUrl);
+                        }
+
+                        if (Url.IsLocalUrl(Input.ReturnUrl))
+                        {
+                            return Redirect(Input.ReturnUrl);
+                        }
+                        else if (string.IsNullOrEmpty(Input.ReturnUrl))
+                        {
+                            return Redirect("~/");
+                        }
+                        else
+                        {
+                            throw new Exception("invalid return URL");
+                        }
+                    }
+
+                }
+            }
+            return Page();
+        }
+
         private async Task BuildRegisterModelAsync(string returnUrl)
         {
             Input = new RegisterViewModel
@@ -66,7 +148,7 @@ namespace Mango.Services.Identity.Pages.Account.Register
                 SD.Admin,
                 SD.Customer
             };
-            ViewData["roels_message"] = roles;
+            ViewData["roles_message"] = roles;
 
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null)
