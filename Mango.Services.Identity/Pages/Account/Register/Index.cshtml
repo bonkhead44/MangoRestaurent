@@ -2,6 +2,7 @@
 @model Mango.Services.Identity.Pages.Account.Register.IndexModel
 @{
     var role_list = (List<string>?)ViewData["roles_message"];
+    var item_list = role_list.Select(x => new SelectListItem { Text = x, Value = x }).ToList();
 }
 
 <div>
@@ -39,8 +40,9 @@
                         </div>
                         <div class="form-group">
                             <label asp-for="Input.RoleName"></label>
-                            <select asp-for="Input.RoleName" class="form-control"
-                                    asp-items="@(new SelectList(role_list))"></select>
+                            @*<select asp-for="Input.RoleName" class="form-control"
+                                    asp-items="@(new SelectList(role_list))"></select>*@
+                            <select asp-for="Input.RoleName" class="form-control"  asp-items="@item_list"></select>
                         </div>
                         <button type="submit" class="btn btn-primary" name="button" value="register">Register</button>
                         <button type="submit" class="btn btn-secondary" name="button" value="cancel">Cancel</button>

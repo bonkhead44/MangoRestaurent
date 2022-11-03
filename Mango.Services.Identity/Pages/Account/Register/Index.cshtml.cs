@@ -72,6 +72,8 @@ namespace Mango.Services.Identity.Pages.Account.Register
                     FirstName = Input.FirstName,
                     LastName = Input.LastName,
                 };
+                var hasher = new PasswordHasher<ApplicationUser>();
+                user.PasswordHash = hasher.HashPassword(user, Input.Password);
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
@@ -97,6 +99,8 @@ namespace Mango.Services.Identity.Pages.Account.Register
 
                     // check if we are in the context of an authorization request
                     var context = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
+
+                    //var signedUser = await _userManager.FindByEmailAsync(Input.Email);
 
                     var loginresult = await _signInManager.PasswordSignInAsync(Input.Username, Input.Password, false, lockoutOnFailure: true);
 
@@ -134,6 +138,7 @@ namespace Mango.Services.Identity.Pages.Account.Register
 
                 }
             }
+            BuildRegisterModelAsync(Input.ReturnUrl);
             return Page();
         }
 
