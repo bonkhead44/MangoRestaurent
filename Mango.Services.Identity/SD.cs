@@ -1,5 +1,6 @@
 ﻿using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
+using IdentityModel;
 
 namespace Mango.Services.Identity
 {
@@ -39,11 +40,11 @@ namespace Mango.Services.Identity
                     RedirectUris={ "https://localhost:44332/signin-oidc" },
                     PostLogoutRedirectUris={"https://localhost:44332/signout-callback-oidc" },
                     AllowedScopes=new List<string>
-                    {
+                    {   "mango",
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        "mango"
+                        JwtClaimTypes.Role
                     }
                 },
             };

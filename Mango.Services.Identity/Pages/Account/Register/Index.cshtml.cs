@@ -72,9 +72,9 @@ namespace Mango.Services.Identity.Pages.Account.Register
                     FirstName = Input.FirstName,
                     LastName = Input.LastName,
                 };
-                var hasher = new PasswordHasher<ApplicationUser>();
-                user.PasswordHash = hasher.HashPassword(user, Input.Password);
-                var result = await _userManager.CreateAsync(user);
+                //var hasher = new PasswordHasher<ApplicationUser>();
+                //user.PasswordHash = hasher.HashPassword(user, Input.Password);
+                var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
                     if (!_roleManager.RoleExistsAsync(Input.RoleName).GetAwaiter().GetResult())

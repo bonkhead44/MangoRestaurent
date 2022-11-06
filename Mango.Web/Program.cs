@@ -35,6 +35,7 @@ builder.Services.AddAuthentication(options =>
         options.TokenValidationParameters.RoleClaimType = "role";
         options.Scope.Add("mango");
         options.SaveTokens = true;
+        options.ClaimActions.MapJsonKey("role","role");
     });
 
 builder.Services.AddControllersWithViews();
