@@ -30,7 +30,7 @@ namespace Mango.Services.Identity.Services
             ClaimsPrincipal userClaims = await _userClaimsPrincipalFactory.CreateAsync(user);
             List<Claim> claims = userClaims.Claims.ToList();
             claims = claims.Where(u => context.RequestedClaimTypes.Contains(u.Type)).ToList();
-            claims.Add(new Claim(JwtClaimTypes.Name, user.UserName));
+            claims.Add(new Claim(JwtClaimTypes.Name, user.FirstName + " " + user.LastName));
             claims.Add(new Claim(JwtClaimTypes.FamilyName, user.LastName));
             claims.Add(new Claim(JwtClaimTypes.GivenName, user.FirstName));
             if (_userMgr.SupportsUserRole)

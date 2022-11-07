@@ -35,7 +35,19 @@ builder.Services.AddAuthentication(options =>
         options.TokenValidationParameters.RoleClaimType = "role";
         options.Scope.Add("mango");
         options.SaveTokens = true;
+
         options.ClaimActions.MapJsonKey("role","role");
+
+        options.Events = new OpenIdConnectEvents 
+        {
+            OnRemoteFailure = context =>
+            {
+                context.Response.Redirect("/");
+                context.HandleResponse();
+                return Task.FromResult(0);
+            }
+        };
+
     });
 
 builder.Services.AddControllersWithViews();
