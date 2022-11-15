@@ -10,9 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddHttpClient<IProductService, ProductService>();
+builder.Services.AddHttpClient<ICartService, CartService>();
 SD.ProductAPIBase = builder.Configuration["ServiceUrls:ProductAPI"];
 SD.ShoppingCartAPIBase = builder.Configuration["ServiceUrls:ShoppingCartAPI"];
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 // #1
 // config web project for identity server authentication
@@ -38,6 +40,7 @@ builder.Services.AddAuthentication(options =>
         options.SaveTokens = true;
 
         options.ClaimActions.MapJsonKey("role","role");
+        options.ClaimActions.MapJsonKey("sub", "sub");
 
         options.Events = new OpenIdConnectEvents 
         {

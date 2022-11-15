@@ -33,7 +33,7 @@ namespace Mango.Services.ShoppingCartAPI.Repository
         {
             Cart cart = _mapper.Map<Cart>(cartDto);
             // check if product exists in database, if not create it 
-            var prodInDb = await _db.Products.FirstOrDefaultAsync(u => u.ProductId == cart.CartDetails.FirstOrDefault().ProductId);
+            var prodInDb = await _db.Products.FirstOrDefaultAsync(u => u.ProductId == cartDto.CartDetails.FirstOrDefault().ProductId);
 
             if (prodInDb == null)
             {

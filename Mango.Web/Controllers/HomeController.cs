@@ -13,11 +13,13 @@ namespace Mango.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductService _productService;
+        private readonly ICartService _iCartService;
 
-        public HomeController(ILogger<HomeController> logger, IProductService productService)
+        public HomeController(ILogger<HomeController> logger, IProductService productService, ICartService iCartService)
         {
             _logger = logger;
             _productService = productService;
+            _iCartService = iCartService;
         }
 
         public async Task<IActionResult> Index()
@@ -34,6 +36,7 @@ namespace Mango.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Details(int productId)
         {
+            var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
             ProductDto model = new();
             var response = await _productService.GetProductByIdAsync<ResponseDto>(productId, "");
             if (response != null && response.IsSuccess)
@@ -41,6 +44,51 @@ namespace Mango.Web.Controllers
                 model = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(response.Result));
             }
             return View(model);
+        }
+
+        [HttpPost]
+        [ActionName("Details")]
+        [Authorize]
+        public async Task<IActionResult> DetailsPost(ProductDto productDto)
+        {
+
+            CartDto cartDto = new();
+
+            CartHeaderDto cartHeaderDto = new CartHeaderDto();
+            cartHeaderDto.UserId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
+            cartDto.CartHeader = cartHeaderDto;
+
+            CartDetailsDto cartDetailsDto = new();
+            cartDetailsDto.ProductId = productDto.ProductId;
+            cartDetailsDto.Count = productDto.Count;
+            //cartDetailsDto.CartHeader = cartHeaderDto;
+
+
+            var response = await _productService.GetProductByIdAsync<ResponseDto>(productDto.ProductId, "");
+            if (response != null && response.IsSuccess)
+            {
+                cartDetailsDto.Product = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(response.Result));
+            }
+
+            List<CartDetailsDto> list = new();
+            list.Add(cartDetailsDto);
+
+            cartDto.CartDetails = list;
+
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            //if (ModelState.IsValid)
+            //{
+            var addToCartResponse = await _iCartService.AddToCartAsync<ResponseDto>(cartDto, accessToken);
+            //}
+
+
+
+            if (addToCartResponse != null && addToCartResponse.IsSuccess)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(productDto);
         }
 
         public IActionResult Privacy()

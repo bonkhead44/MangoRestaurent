@@ -11,24 +11,47 @@ namespace Mango.Web.Services
             _httpClientFactory = httpClientFactory;
         }
 
-        public Task<T> AddToCartAsync<T>(CartDto cartDto, string? token = null)
+        public async Task<T> AddToCartAsync<T>(CartDto cartDto, string? token = null)
         {
-            throw new NotImplementedException();
+            return await this.SendAsync<T>(new ApiRequest()
+            {
+                ApiType = SD.ApiType.POST,
+                Url = SD.ShoppingCartAPIBase + "/api/cart/AddCart",
+                Data = cartDto,
+                AccessToken = token
+            });
         }
 
-        public Task<T> GetCartByUserIdAsnyc<T>(string userId, string? token = null)
+        public async Task<T> GetCartByUserIdAsnyc<T>(string userId, string? token = null)
         {
-            throw new NotImplementedException();
+            return await this.SendAsync<T>(new ApiRequest()
+            {
+                ApiType = SD.ApiType.GET,
+                Url = SD.ShoppingCartAPIBase + "/api/cart/GetCart" + userId,
+                AccessToken = token
+            });
         }
 
-        public Task<T> RemoveFromCartAsync<T>(int cartId, string? token = null)
+        public async Task<T> RemoveFromCartAsync<T>(int cartId, string? token = null)
         {
-            throw new NotImplementedException();
+            return await this.SendAsync<T>(new ApiRequest()
+            {
+                ApiType = SD.ApiType.POST,
+                Url = SD.ShoppingCartAPIBase + "/api/cart/RemoveCart",
+                Data = cartId,
+                AccessToken = token
+            });
         }
 
-        public Task<T> UpdateCartAsync<T>(CartDto cartDto, string? token = null)
+        public async Task<T> UpdateCartAsync<T>(CartDto cartDto, string? token = null)
         {
-            throw new NotImplementedException();
+            return await this.SendAsync<T>(new ApiRequest()
+            {
+                ApiType = SD.ApiType.POST,
+                Url = SD.ShoppingCartAPIBase + "/api/cart/UpdateCart",
+                Data = cartDto,
+                AccessToken = token
+            });
         }
     }
 }
