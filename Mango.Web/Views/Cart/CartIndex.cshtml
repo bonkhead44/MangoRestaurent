@@ -5,6 +5,8 @@ if (Model.CartHeader != null && Model.CartDetails.Count() > 0)
     {
         <form method="post">
             <br />
+            <input asp-for="CartHeader.UserId" hidden />
+            <input asp-for="CartHeader.CartHeaderId" hidden />
             <div class="">
                 <div class="card border mt-4 container">
                     <div class="card-header bg-dark text-light ml-0 row ">
@@ -65,9 +67,18 @@ if (Model.CartHeader != null && Model.CartDetails.Count() > 0)
                         <hr />
                         <div class="row">
                             <div class="col-6">
-                                <span>Coupon:</span>
-                                <input />
-                                <button type="submit" class="btn-success"> Apply </button>
+                                @if (string.IsNullOrEmpty(Model.CartHeader.CouponCode))
+                                {
+                                    <span>Coupon:</span>
+                                    <input asp-for="CartHeader.CouponCode" />
+                                    <button type="submit" asp-action="ApplyCoupon" class="btn-success"> Apply </button>
+                                }
+                                else
+                                {
+                                    <span>Coupon:</span>
+                                    <input asp-for="CartHeader.CouponCode" disabled />
+                                    <button type="submit" asp-action="RemoveCoupon" class="btn-danger"> Remove </button>
+                                }
                             </div>
                             <div class="col-6 text-end">
                                 <span class="text-danger" style="font-size:21px;">  Order Total : @string.Format("{0:c}", Model.CartHeader.OrderTotal) <br /></span>

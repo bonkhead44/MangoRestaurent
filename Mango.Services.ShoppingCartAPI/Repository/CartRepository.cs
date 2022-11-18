@@ -28,7 +28,6 @@ namespace Mango.Services.ShoppingCartAPI.Repository
                 }
                 return false;
         }
-
         public async Task<CartDto> CreateUpdateCart(CartDto cartDto)
         {
             Cart cart = _mapper.Map<Cart>(cartDto);
@@ -78,7 +77,6 @@ namespace Mango.Services.ShoppingCartAPI.Repository
             }
             return _mapper.Map<CartDto>(cart);
         }
-
         public async Task<CartDto> GetCartByUserID(string userId)
         {
             Cart cart = new() {
@@ -88,7 +86,6 @@ namespace Mango.Services.ShoppingCartAPI.Repository
 
             return _mapper.Map<CartDto>(cart);
         }
-
         public async Task<bool> RemoveFromCart(int cartDetailsId)
         {
             try
@@ -110,5 +107,30 @@ namespace Mango.Services.ShoppingCartAPI.Repository
                 return false;
             }
         }
+        public async Task<bool> ApplyCoupon(string userId, string couponCode)
+        {
+            var cartHeaderFromDb = await _db.CartHeaders.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (cartHeaderFromDb != null)
+            {
+                cartHeaderFromDb.CouponCode = couponCode;
+                _db.CartHeaders.Update(cartHeaderFromDb);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+        public async Task<bool> RemoveCoupon(string userId)
+        {
+            var cartHeaderFromDb = await _db.CartHeaders.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (cartHeaderFromDb != null)
+            {
+                cartHeaderFromDb.CouponCode = null;
+                _db.CartHeaders.Update(cartHeaderFromDb);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
     }
 }
