@@ -1,7 +1,7 @@
 ﻿@model Mango.Web.Models.CartDto
 
 @{
-if (Model.CartHeader != null && Model.CartDetails.Count() > 0)
+    if (Model.CartHeader != null && Model.CartDetails.Count() > 0)
     {
         <form method="post">
             <br />
@@ -56,14 +56,14 @@ if (Model.CartHeader != null && Model.CartDetails.Count() > 0)
                                     <span style="font-size:17px;"> @cartObj.Count</span>
                                 </div>
                                 <div class="col-2 col-lg-1 p-0 pt-lg-4 text-center">
-                                    <a asp-action="Remove" asp-route-cartDetailsId = "@cartObj.CartDetailsId" class="btn btn-outline-danger">
+                                    <a asp-action="Remove" asp-route-cartDetailsId="@cartObj.CartDetailsId" class="btn btn-outline-danger">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </div>
                             </div>
                         }
 
-                        
+
                         <hr />
                         <div class="row">
                             <div class="col-6">
@@ -82,6 +82,11 @@ if (Model.CartHeader != null && Model.CartDetails.Count() > 0)
                             </div>
                             <div class="col-6 text-end">
                                 <span class="text-danger" style="font-size:21px;">  Order Total : @string.Format("{0:c}", Model.CartHeader.OrderTotal) <br /></span>
+                                @if (Model.CartHeader.DiscountTotal > 0)
+                                {
+                                    <span class="text-success"> Order Discount :  @string.Format("{0:c}", Model.CartHeader.DiscountTotal)</span>
+
+                                }
                             </div>
                         </div>
                     </div>
@@ -97,7 +102,8 @@ if (Model.CartHeader != null && Model.CartDetails.Count() > 0)
                 </div>
             </div>
         </form>
-    }else
+    }
+    else
     {
         <div>
             <p>Please add items to cart.</p>

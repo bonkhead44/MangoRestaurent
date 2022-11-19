@@ -10,14 +10,17 @@ namespace Mango.Web.Controllers
     public class CartController : Controller
     {
         private readonly ICartService _iCartService;
-        public CartController(ICartService iCartService)
+        private readonly ICouponService _iCouponService;
+        public CartController(ICartService iCartService, ICouponService iCouponService)
         {
             _iCartService = iCartService;
+            _iCouponService = iCouponService;
         }
         public async Task<IActionResult> CartIndex()
         {
             return View(await LoadCartDtoBasedOnLoggedInUser());
         }
+
         [HttpPost]
         [ActionName("ApplyCoupon")]
         public async Task<IActionResult> ApplyCoupon(CartDto cartDto)
@@ -59,6 +62,11 @@ namespace Mango.Web.Controllers
             return View();
         }
 
+        public async Task<IActionResult> Checkout()
+        {
+            return View(await LoadCartDtoBasedOnLoggedInUser());
+        }
+
         private async Task<CartDto> LoadCartDtoBasedOnLoggedInUser()
         {
             var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
@@ -74,10 +82,21 @@ namespace Mango.Web.Controllers
 
             if (cartDto.CartHeader != null)
             {
+                if (!string.IsNullOrEmpty(cartDto.CartHeader.CouponCode))
+                {
+                    var couponResponse  = await _iCouponService.GetCoupon<ResponseDto>(cartDto.CartHeader.CouponCode, accessToken);
+                    if (couponResponse != null && couponResponse.IsSuccess)
+                    {
+                        var couponDto = JsonConvert.DeserializeObject<CouponDto>(Convert.ToString(couponResponse.Result));
+                        cartDto.CartHeader.DiscountTotal = couponDto.DiscountAmount;
+                    }
+                }
+
                 foreach (var item in cartDto.CartDetails)
                 {
                     cartDto.CartHeader.OrderTotal += (item.Product.Price * item.Count);
                 }
+                cartDto.CartHeader.OrderTotal -= cartDto.CartHeader.DiscountTotal;
             }
 
             return cartDto;
