@@ -62,7 +62,7 @@ namespace Mango.Web.Services.IServices
             {
                 var dto = new ResponseDto 
                 {
-                    DispalyMessage = "Error",
+                    DisplayMessage = "Error",
                     ErrorMessages = new List<string> { Convert.ToString(ex.Message) },
                     IsSuccess = false
                 };
