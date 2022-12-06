@@ -18,6 +18,7 @@ namespace Mango.Services.OrderAPI.Messaging
         private readonly string checkoutMessageTopic;
         private readonly string orderPaymentProcessTopic;
         private readonly string orderUpdatePaymentResultTopic;
+        //private readonly string checkoutMessageQueue;
         private readonly ServiceBusProcessor checkOutProcessor;
         private ServiceBusProcessor orderUpdatePaymentStatusProcessor;
         private readonly IMessageBus _iMessageBus;
@@ -31,8 +32,12 @@ namespace Mango.Services.OrderAPI.Messaging
             checkoutMessageTopic = _configuration.GetValue<string>("CheckoutMessageTopic");
             orderPaymentProcessTopic = _configuration.GetValue<string>("OrderPaymentProcessTopics");
             orderUpdatePaymentResultTopic = _configuration.GetValue<string>("OrderUpdatePaymentResultTopic");
+            //checkoutMessageQueue = _configuration.GetValue<string>("CheckoutMessageQueue");
             var client = new ServiceBusClient(serviceBusConnectionString);
+            //// create processor for topic and subscription
             checkOutProcessor = client.CreateProcessor(checkoutMessageTopic, subscriptionCheckOut);
+            //// create processor for Queue
+            //checkOutProcessor = client.CreateProcessor(checkoutMessageQueue);
             orderUpdatePaymentStatusProcessor = client.CreateProcessor(orderUpdatePaymentResultTopic, subscriptionCheckOut);
             _iMessageBus = iMessageBus;
         }

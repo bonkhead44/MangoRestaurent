@@ -12,18 +12,22 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
     [ApiController]
     public class CartAPIController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         protected ResponseDto _response;
         private readonly ICartRepository _iCartRepository;
         private readonly ICouponRepository _iCouponRepository;
         private readonly IMessageBus _iMessageBus;
-        // need to change
-        private string topicName = "checkoutmessagetopic";
-        public CartAPIController(ICartRepository iCartRepository, IMessageBus iMessageBus, ICouponRepository iCouponRepository)
+        private readonly string checkoutMessageTopic;
+        private readonly string checkoutMessageQueue;
+        public CartAPIController(ICartRepository iCartRepository, IMessageBus iMessageBus, ICouponRepository iCouponRepository, IConfiguration configuration)
         {
+            _configuration = configuration;
             _iCartRepository = iCartRepository;
             _response = new ResponseDto();
             _iMessageBus = iMessageBus;
             _iCouponRepository = iCouponRepository;
+            checkoutMessageTopic = _configuration.GetValue<string>("CheckoutMessageTopic");
+            checkoutMessageQueue = _configuration.GetValue<string>("CheckoutMessageQueue");
         }
 
         [HttpGet("GetCart/{userId}")]
@@ -145,7 +149,10 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                 }
                 checkoutHeaderDto.CartDetails = cartDto.CartDetails;
                 // logic to add messages to process order
-                await _iMessageBus.PusblishMessage(checkoutHeaderDto, topicName);
+                // topic & subcription
+                //await _iMessageBus.PusblishMessage(checkoutHeaderDto, checkoutMessageTopic);
+                // queue
+                await _iMessageBus.PusblishMessage(checkoutHeaderDto, checkoutMessageQueue);
                 await _iCartRepository.ClearCart(checkoutHeaderDto.UserId);
 
             }
